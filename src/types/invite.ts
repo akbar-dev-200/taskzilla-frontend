@@ -23,7 +23,7 @@ export interface Invite {
 export interface SendInvitationsData {
   team_id: string;
   emails: string[];
-  role?: string;
+  role: string;
 }
 
 export interface AcceptInvitationData {

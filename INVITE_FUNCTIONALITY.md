@@ -11,9 +11,11 @@ The frontend is fully integrated with your Laravel backend routes:
 ```php
 // Send invitations (team admin/creator only)
 POST /api/invites
+// Payload: { team_id, emails[], role }
 
 // Accept invitation (authenticated users)
 POST /api/invites/accept
+// Payload: { token }
 
 // Decline invitation (authenticated users) - NEEDS TO BE ADDED TO BACKEND
 POST /api/invites/decline
@@ -62,6 +64,7 @@ All mutations include:
 - Add multiple email addresses
 - Validate emails before adding
 - Remove emails from list
+- Select role for invitees (member, admin, lead)
 - Submit invitations for a team
 - Shows email chips/badges for added emails
 
@@ -139,8 +142,9 @@ Features:
 1. Team lead/admin navigates to Team Details page
 2. Clicks "Invite" button or "Invitations" tab
 3. Enters email addresses in modal (multiple supported)
-4. Submits invitations
-5. Backend sends email notifications (handled by Laravel)
+4. Selects role for invitees (Member, Admin, or Lead)
+5. Submits invitations
+6. Backend sends email notifications (handled by Laravel)
 
 ### Receiving & Accepting Invitations
 1. User receives email with invitation link (backend)
@@ -169,12 +173,18 @@ interface Invite {
   invitee_email: string;
   invitee_id?: string;
   invitee?: User;
-  role?: string; // Optional: 'lead', 'admin', 'member'
+  role?: string; // 'lead', 'admin', 'member'
   status: 'pending' | 'accepted' | 'rejected' | 'expired';
   token: string;
   expires_at: string;
   created_at: string;
   updated_at: string;
+}
+
+interface SendInvitationsData {
+  team_id: string;
+  emails: string[];
+  role: string; // Required: 'member', 'admin', or 'lead'
 }
 ```
 
@@ -191,7 +201,8 @@ All invite operations include:
 
 ## Features Implemented
 
-✅ Send multiple invitations at once
+✅ Send multiple invitations at once with role selection
+✅ Role selector (Member, Admin, Lead)
 ✅ Accept invitations
 ✅ Decline invitations with confirmation
 ✅ Revoke sent invitations

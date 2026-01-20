@@ -45,7 +45,9 @@ export const updateTaskSchema = z.object({
 export const sendInvitationsSchema = z.object({
   team_id: z.string().min(1, 'Team is required'),
   emails: z.array(z.string().email('Invalid email address')).min(1, 'At least one email is required'),
-  role: z.string().optional(),
+  role: z.enum(['member', 'admin', 'lead'], {
+    required_error: 'Role is required',
+  }),
 });
 
 export const isValidEmail = (email: string): boolean => {

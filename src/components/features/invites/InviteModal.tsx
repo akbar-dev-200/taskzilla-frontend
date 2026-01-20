@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
 import { Modal } from '@/components/common/Modal';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { Badge } from '@/components/common/Badge';
-import { sendInvitationsSchema } from '@/utils/validators';
+import { Select } from '@/components/common/Select';
 import { SendInvitationsData } from '@/types/invite';
 import { isValidEmail } from '@/utils/validators';
 
@@ -28,10 +26,7 @@ export const InviteModal = ({
   const [emails, setEmails] = useState<string[]>([]);
   const [emailInput, setEmailInput] = useState('');
   const [emailError, setEmailError] = useState('');
-
-  const { handleSubmit, reset } = useForm<SendInvitationsData>({
-    resolver: zodResolver(sendInvitationsSchema),
-  });
+  const [role, setRole] = useState<string>('member');
 
   const addEmail = () => {
     const trimmedEmail = emailInput.trim();
@@ -57,28 +52,38 @@ export const InviteModal = ({
     setEmails(emails.filter((email) => email !== emailToRemove));
   };
 
-  const handleFormSubmit = async () => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (emails.length === 0) {
       setEmailError('Please add at least one email');
       return;
     }
 
-    await onSubmit({
-      team_id: teamId,
-      emails,
-    });
-    
-    setEmails([]);
-    setEmailInput('');
-    reset();
-    onClose();
+    try {
+      await onSubmit({
+        team_id: teamId,
+        emails,
+        role,
+      });
+      
+      // Only reset and close if successful
+      setEmails([]);
+      setEmailInput('');
+      setEmailError('');
+      setRole('member');
+      onClose();
+    } catch (error) {
+      // Error is handled by the mutation hook
+      console.error('Failed to send invitations:', error);
+    }
   };
 
   const handleClose = () => {
     setEmails([]);
     setEmailInput('');
     setEmailError('');
-    reset();
+    setRole('member');
     onClose();
   };
 
@@ -91,7 +96,7 @@ export const InviteModal = ({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Invite Team Members" size="md">
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <form onSubmit={handleFormSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Email Addresses
@@ -131,6 +136,25 @@ export const InviteModal = ({
             ))}
           </div>
         )}
+
+        {/* Role Selection */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Role
+          </label>
+          <Select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            options={[
+              { value: 'member', label: 'Member' },
+              { value: 'admin', label: 'Admin' },
+              { value: 'lead', label: 'Lead' },
+            ]}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Select the role for the invited members
+          </p>
+        </div>
 
         <div className="flex gap-3 justify-end pt-4">
           <Button type="button" variant="ghost" onClick={handleClose}>
