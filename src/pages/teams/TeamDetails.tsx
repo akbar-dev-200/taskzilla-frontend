@@ -11,10 +11,11 @@ import { Avatar } from '@/components/common/Avatar';
 import { TeamMembersList } from '@/components/features/teams/TeamMembersList';
 import { TaskCard } from '@/components/features/tasks/TaskCard';
 import { InviteModal } from '@/components/features/invites/InviteModal';
+import { TeamInvitesList } from '@/components/features/invites/TeamInvitesList';
 import { CreateTaskModal } from '@/components/features/tasks/CreateTaskModal';
 import { useTeam, useTeams } from '@/hooks/useTeams';
 import { useTeamTasks, useTaskMutations } from '@/hooks/useTasks';
-import { useInviteMutations } from '@/hooks/useInvites';
+import { useInviteMutations, useTeamInvites } from '@/hooks/useInvites';
 import { ROUTES } from '@/utils/constants';
 import { EmptyState } from '@/components/common/EmptyState';
 import { CheckSquare } from 'lucide-react';
@@ -24,14 +25,15 @@ export const TeamDetails = () => {
   const navigate = useNavigate();
   const { data: team, isLoading } = useTeam(uuid!);
   const { data: tasks, isLoading: tasksLoading } = useTeamTasks(uuid!);
+  const { data: teamInvites, isLoading: invitesLoading } = useTeamInvites(uuid!);
   const { teams } = useTeams();
   const { deleteTeam, isDeleting } = useTeams();
   const { createTask, isCreating } = useTaskMutations();
-  const { sendInvitations, isSending } = useInviteMutations();
+  const { sendInvitations, revokeInvitation, isSending, isRevoking } = useInviteMutations();
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'tasks'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'tasks' | 'invitations'>('overview');
 
   const handleDeleteTeam = async () => {
     if (!uuid) return;
@@ -112,7 +114,7 @@ export const TeamDetails = () => {
         {/* Tabs */}
         <div className="border-b border-gray-200 mb-6">
           <div className="flex gap-6">
-            {(['overview', 'members', 'tasks'] as const).map((tab) => (
+            {(['overview', 'members', 'tasks', 'invitations'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -204,6 +206,25 @@ export const TeamDetails = () => {
                 }
               />
             )}
+          </div>
+        )}
+
+        {activeTab === 'invitations' && (
+          <div>
+            <div className="flex justify-end mb-4">
+              <Button onClick={() => setShowInviteModal(true)}>
+                <Mail className="w-4 h-4 mr-2" />
+                Send Invitations
+              </Button>
+            </div>
+            
+            <TeamInvitesList
+              teamId={uuid!}
+              invites={teamInvites}
+              isLoading={invitesLoading}
+              onRevoke={revokeInvitation}
+              isRevoking={isRevoking}
+            />
           </div>
         )}
 

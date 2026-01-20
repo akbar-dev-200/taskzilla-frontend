@@ -27,6 +27,9 @@ export const useInviteMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['invites'] });
       toast.success('Invitations sent successfully!');
     },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to send invitations');
+    },
   });
 
   const acceptInvitationMutation = useMutation({
@@ -34,7 +37,21 @@ export const useInviteMutations = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invites'] });
       queryClient.invalidateQueries({ queryKey: ['teams'] });
-      toast.success('Invitation accepted!');
+      toast.success('Invitation accepted! Welcome to the team!');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to accept invitation');
+    },
+  });
+
+  const declineInvitationMutation = useMutation({
+    mutationFn: invitesApi.declineInvitation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invites'] });
+      toast.success('Invitation declined');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to decline invitation');
     },
   });
 
@@ -44,14 +61,19 @@ export const useInviteMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['invites'] });
       toast.success('Invitation revoked!');
     },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to revoke invitation');
+    },
   });
 
   return {
     sendInvitations: (data: SendInvitationsData) => sendInvitationsMutation.mutateAsync(data),
     acceptInvitation: (data: AcceptInvitationData) => acceptInvitationMutation.mutateAsync(data),
+    declineInvitation: (token: string) => declineInvitationMutation.mutateAsync(token),
     revokeInvitation: (inviteId: string) => revokeInvitationMutation.mutateAsync(inviteId),
     isSending: sendInvitationsMutation.isPending,
     isAccepting: acceptInvitationMutation.isPending,
+    isDeclining: declineInvitationMutation.isPending,
     isRevoking: revokeInvitationMutation.isPending,
   };
 };

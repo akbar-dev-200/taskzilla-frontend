@@ -12,7 +12,7 @@ export interface Invite {
   invitee_email: string;
   invitee_id?: string;
   invitee?: User;
-  role: string;
+  role?: string;
   status: InviteStatus;
   token: string;
   expires_at: string;

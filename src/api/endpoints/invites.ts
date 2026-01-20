@@ -12,6 +12,10 @@ export const invitesApi = {
     await apiClient.post('/invites/accept', acceptData);
   },
 
+  declineInvitation: async (token: string): Promise<void> => {
+    await apiClient.post('/invites/decline', { token });
+  },
+
   revokeInvitation: async (inviteId: string): Promise<void> => {
     await apiClient.delete(`/invites/${inviteId}`);
   },

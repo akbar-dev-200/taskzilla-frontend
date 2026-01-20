@@ -9,15 +9,24 @@ import { Mail } from 'lucide-react';
 
 export const MyInvites = () => {
   const { data: invites, isLoading } = useMyPendingInvites();
-  const { acceptInvitation, isAccepting } = useInviteMutations();
+  const { acceptInvitation, declineInvitation, isAccepting, isDeclining } = useInviteMutations();
 
   const handleAccept = async (invite: Invite) => {
-    await acceptInvitation({ token: invite.token });
+    try {
+      await acceptInvitation({ token: invite.token });
+    } catch (error) {
+      // Error handled in hook
+    }
   };
 
   const handleDecline = async (invite: Invite) => {
-    // TODO: Implement decline invitation
-    console.log('Decline invite:', invite);
+    if (confirm('Are you sure you want to decline this invitation?')) {
+      try {
+        await declineInvitation(invite.token);
+      } catch (error) {
+        // Error handled in hook
+      }
+    }
   };
 
   return (
@@ -45,6 +54,7 @@ export const MyInvites = () => {
                 onAccept={handleAccept}
                 onDecline={handleDecline}
                 isAccepting={isAccepting}
+                isDeclining={isDeclining}
               />
             ))}
           </div>

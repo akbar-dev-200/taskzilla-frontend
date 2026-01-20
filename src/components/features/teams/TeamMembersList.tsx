@@ -41,8 +41,8 @@ export const TeamMembersList = ({ members }: TeamMembersListProps) => {
                 )}
               </div>
             </div>
-            <Badge variant={getRoleBadgeVariant(member.role)}>
-              {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
+            <Badge variant={getRoleBadgeVariant(member.role || 'member')}>
+              {member.role ? member.role.charAt(0).toUpperCase() + member.role.slice(1) : 'Member'}
             </Badge>
           </div>
         </Card>

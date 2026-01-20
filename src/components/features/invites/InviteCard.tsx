@@ -44,7 +44,7 @@ export const InviteCard = ({
             )}
           </div>
           <Badge variant="info">
-            {invite.role}
+            {invite.role ? invite.role.charAt(0).toUpperCase() + invite.role.slice(1) : 'Member'}
           </Badge>
         </div>
 
