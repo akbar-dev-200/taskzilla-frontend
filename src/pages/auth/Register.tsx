@@ -9,6 +9,7 @@ import { Button } from '@/components/common/Button';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { ROUTES } from '@/utils/constants';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 export const Register = () => {
   const navigate = useNavigate();
@@ -27,9 +28,27 @@ export const Register = () => {
     try {
       setIsLoading(true);
       await registerUser(data);
-      navigate(ROUTES.DASHBOARD);
-    } catch (error) {
+      // Show success message and navigate to login
+      toast.success('🎉 Account created successfully! Please login to continue.', {
+        duration: 4000,
+      });
+      setTimeout(() => {
+        navigate(ROUTES.LOGIN);
+      }, 2000); // Give user time to see the success message
+    } catch (error: any) {
       console.error('Registration error:', error);
+      // Show error toast for validation errors
+      if (error?.message) {
+        toast.error(error.message);
+      } else if (error?.errors) {
+        // Show first validation error
+        const firstError = Object.values(error.errors)[0] as string[];
+        if (firstError?.[0]) {
+          toast.error(firstError[0]);
+        }
+      } else {
+        toast.error('Registration failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

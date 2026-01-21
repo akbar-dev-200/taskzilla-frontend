@@ -9,6 +9,7 @@ import { Button } from '@/components/common/Button';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { ROUTES } from '@/utils/constants';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -28,8 +29,16 @@ export const Login = () => {
       setIsLoading(true);
       await login(data);
       navigate(ROUTES.DASHBOARD);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
+      // Show error toast for validation errors (credentials don't match)
+      if (error?.message) {
+        toast.error(error.message);
+      } else if (error?.errors?.email?.[0]) {
+        toast.error(error.errors.email[0]);
+      } else {
+        toast.error('Login failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

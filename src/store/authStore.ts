@@ -62,19 +62,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
   register: async (userData: RegisterData) => {
     try {
       set({ isLoading: true });
-      const response = await authApi.register(userData);
-
-      storage.set(AUTH_TOKEN_KEY, response.token);
-      storage.set(AUTH_USER_KEY, response.user);
-
-      set({
-        user: response.user,
-        token: response.token,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-
-      toast.success('Account created successfully!');
+      await authApi.register(userData);
+      
+      // Don't auto-login, let user login manually
+      set({ isLoading: false });
     } catch (error) {
       set({ isLoading: false });
       throw error;
