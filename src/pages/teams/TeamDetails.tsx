@@ -28,7 +28,7 @@ export const TeamDetails = () => {
   const { data: teamInvites, isLoading: invitesLoading } = useTeamInvites(uuid!);
   const { teams } = useTeams();
   const { deleteTeam, isDeleting } = useTeams();
-  const { createTask, isCreating } = useTaskMutations();
+  const { createTask, isCreating, updateTaskStatus } = useTaskMutations();
   const { sendInvitations, revokeInvitation, isSending, isRevoking } = useInviteMutations();
 
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -40,6 +40,14 @@ export const TeamDetails = () => {
     if (confirm('Are you sure you want to delete this team? This action cannot be undone.')) {
       await deleteTeam(uuid);
       navigate(ROUTES.TEAMS);
+    }
+  };
+
+  const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
+    try {
+      await updateTaskStatus(taskId, { status: newStatus });
+    } catch (error) {
+      console.error('Failed to update task status:', error);
     }
   };
 
@@ -190,7 +198,11 @@ export const TeamDetails = () => {
             ) : tasks && tasks.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {tasks.map((task) => (
-                  <TaskCard key={task.uuid} task={task} />
+                  <TaskCard 
+                    key={task.uuid} 
+                    task={task}
+                    onStatusChange={handleStatusChange}
+                  />
                 ))}
               </div>
             ) : (

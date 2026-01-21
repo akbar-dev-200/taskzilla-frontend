@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { User } from '@/types/user';
 import { LoginCredentials, RegisterData } from '@/types/auth';
 import { authApi } from '@/api/endpoints/auth';
@@ -19,7 +20,9 @@ interface AuthStore {
   initAuth: () => void;
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set, get) => ({
   user: null,
   token: null,
   isAuthenticated: false,
@@ -95,4 +98,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
     set({ user });
   },
-}));
+}),
+    {
+      name: 'taskzilla-auth', // unique name for localStorage key
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    }
+  )
+);

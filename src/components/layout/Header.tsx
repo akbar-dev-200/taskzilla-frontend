@@ -14,6 +14,15 @@ export const Header = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { data: pendingInvites } = useMyPendingInvites();
 
+  // Debug: Log user data (remove in production)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Header - User Data:', {
+      name: user?.name,
+      avatar_url: user?.avatar_url,
+      hasUser: !!user,
+    });
+  }
+
   const handleLogout = async () => {
     await logout();
   };

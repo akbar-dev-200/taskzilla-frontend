@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/authStore';
 import { router } from './router';
+import './utils/avatarHelpers'; // Load debug tools in development
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -10,7 +10,7 @@ import { CreateTaskModal } from '@/components/features/tasks/CreateTaskModal';
 import { TaskFilters } from '@/components/features/tasks/TaskFilters';
 import { useMyTasks, useTaskMutations } from '@/hooks/useTasks';
 import { useTeams } from '@/hooks/useTeams';
-import { TaskFilters as TaskFiltersType } from '@/types/task';
+import { TaskFilters as TaskFiltersType, TaskStatus } from '@/types/task';
 import { CheckSquare } from 'lucide-react';
 
 export const MyTasks = () => {
@@ -20,7 +20,15 @@ export const MyTasks = () => {
 
   const { data: tasks, isLoading } = useMyTasks(filters);
   const { teams } = useTeams();
-  const { createTask, isCreating } = useTaskMutations();
+  const { createTask, isCreating, updateTaskStatus } = useTaskMutations();
+
+  const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
+    try {
+      await updateTaskStatus(taskId, { status: newStatus });
+    } catch (error) {
+      console.error('Failed to update task status:', error);
+    }
+  };
 
   const pendingTasks = tasks?.filter((t) => t.status === 'pending') || [];
   const inProgressTasks = tasks?.filter((t) => t.status === 'in_progress') || [];
@@ -92,7 +100,11 @@ export const MyTasks = () => {
             {/* Tasks Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {tasks.map((task) => (
-                <TaskCard key={task.uuid} task={task} />
+                <TaskCard 
+                  key={task.uuid} 
+                  task={task}
+                  onStatusChange={handleStatusChange}
+                />
               ))}
             </div>
           </div>

@@ -12,15 +12,25 @@ import { TaskCard } from '@/components/features/tasks/TaskCard';
 import { CreateTeamModal } from '@/components/features/teams/CreateTeamModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeams } from '@/hooks/useTeams';
-import { useMyTasks } from '@/hooks/useTasks';
+import { useMyTasks, useTaskMutations } from '@/hooks/useTasks';
 import { ROUTES } from '@/utils/constants';
+import { TaskStatus } from '@/types/task';
 
 export const Dashboard = () => {
   const { user } = useAuth();
   const { teams, isLoading: teamsLoading, createTeam, isCreating } = useTeams();
   const { data: myTasks, isLoading: tasksLoading } = useMyTasks();
+  const { updateTaskStatus } = useTaskMutations();
   
   const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
+
+  const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
+    try {
+      await updateTaskStatus(taskId, { status: newStatus });
+    } catch (error) {
+      console.error('Failed to update task status:', error);
+    }
+  };
 
   const stats = [
     {
@@ -155,7 +165,11 @@ export const Dashboard = () => {
             ) : (
               <div className="space-y-4">
                 {myTasks.slice(0, 5).map((task) => (
-                  <TaskCard key={task.uuid} task={task} />
+                  <TaskCard 
+                    key={task.uuid} 
+                    task={task}
+                    onStatusChange={handleStatusChange}
+                  />
                 ))}
               </div>
             )}
